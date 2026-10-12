@@ -1,0 +1,71 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: splitflow-ai
+  profiles:
+    active: dev
+  jpa:
+    open-in-view: false
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:h2:mem:splitflowdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/splitflow}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+
+---
+# SplitFlow Business & Integrations Config
+splitflow:
+  app:
+    default-currency: INR
+    dispute-max-turns: 1
+    idempotency-ttl-seconds: 10
+  whatsapp:
+    enabled: ${WHATSAPP_ENABLED:true} # Active since credentials are provided
+    api-url: https://graph.facebook.com/v20.0
+    phone-number-id: 1326188427248048
+    api-token: EAGU1v3ewmQABSsVvqis7HJoPe9tCZCdrCTyLJ7Ra5oH3P35npNZBRMTQg941pMssqcCclv23mvxDHu4fAuzE1RYKgxURyfQaZCTMv9VZC2oE9OiuUaXlJ9JcDjYAQ0GtAweIZBGfaSIFdDIR21RCTe5BhuVmC0Wfr6Geah6Fe0Q9bqsAYckRZCEi1N4krThYopmNAhlHig8hZAIMkWsov1iYxkK1om8Yz6DGqGXZCkGDv9h4CVBZALxEDyESy1uz0hghyh0B2yp0lotHiT587HzYP
+    verify-token: splitflow_secret_token_123
+    app-secret: ${WHATSAPP_APP_SECRET:}
+  ai:
+    provider: ${AI_PROVIDER:mock} # 'gemini', 'groq', or 'mock'
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      model: gemini-1.5-flash
+    groq:
+      api-key: ${GROQ_API_KEY:}
+      whisper-model: whisper-large-v3
